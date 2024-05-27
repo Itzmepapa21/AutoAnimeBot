@@ -50,6 +50,39 @@ admin = AdminUtils(dB, bot)
 async def _start(event):
     msg_id = event.pattern_match.group(1)
     xnx = await event.reply("`Please Wait...`")
+    if Var.FORCESUB_CHANNEL and Var.FORCESUB_CHANNEL_LINK and Var.FORCESUB_CHANNEL_2 and Var.FORCESUB_CHANNEL_LINK_2:
+        is_user_joined = await bot.is_joined(Var.FORCESUB_CHANNEL, event.sender_id)
+        is_user_joined_2 = await bot.is_joined(Var.FORCESUB_CHANNEL_2, event.sender_id)
+    if not is_user_joined or not is_user_joined_2:
+        message = "**Please Join the Following Channels to Use This Bot:**\n"
+        buttons = []
+        if not is_user_joined:
+            message += f"- [Anime Compass]({Var.FORCESUB_CHANNEL_LINK})\n"
+            buttons.append(
+                Button.url(
+                    "Join Channel",
+                    url=f"https://t.me/Anime_Compass",
+                )
+            )
+        if not is_user_joined_2:
+            message += f"- [Ongoing Compass]({Var.FORCESUB_CHANNEL_LINK_2})\n"
+            buttons.append(
+                Button.url(
+                    "Join Channel",
+                    url=f"https://t.me/Ongoing_Compass",
+                )
+            )
+        buttons.append(
+            Button.url(
+                "♻️ REFRESH",
+                url=f"https://t.me/{((await bot.get_me()).username)}?start={msg_id}",
+            )
+        )
+        return await xnx.edit(
+            message,
+            buttons=[buttons]  # Wrap buttons list in another list to force end column
+        )
+        
     if msg_id:
         if msg_id.isdigit():
             msg = await bot.get_messages(Var.BACKUP_CHANNEL, ids=int(msg_id))
@@ -71,10 +104,10 @@ async def _start(event):
             f"**Enjoy Ongoing Anime's Best Encode 24/7 🫡**",
             buttons=[
                 [
-                    Button.url("👨‍💻 DEV", url="t.me/kaif_00z"),
+                    Button.url("👨‍💻 DEV", url="t.me/Mr_Bankaiiii"),
                     Button.url(
-                        "💖 OPEN SOURCE",
-                        url="https://github.com/kaif-00z/AutoAnimeBot/",
+                        "💖 Main Channel",
+                        url="T.me/Anime_Compass",
                     ),
                 ]
             ],
@@ -114,9 +147,9 @@ async def _(e):
 
 async def anime(data):
     try:
-        torr = [data.get("720p"), data.get("1080p")]
+        torr = [data.get("480p"), data.get("720p"), data.get("1080p")]
         poster = await tools._poster(bot, AnimeInfo(torr[0].title))
-        btn = []
+        btn = [[]]
         for i in torr:
             try:
                 filename = f"downloads/{i.title}"
@@ -137,8 +170,11 @@ async def anime(data):
                 result, _btn = await exe.execute()
                 if result:
                     if _btn:
-                        btn.append(_btn)
-                        await poster.edit(buttons=[btn])
+                        if len(btn[0]) == 2:
+                            btn.append([_btn])
+                        else:
+                            btn[0].append(_btn)
+                        await poster.edit(buttons=btn)
                     asyncio.ensure_future(exe.further_work())
                     continue
                 await reporter.report_error(_btn, log=True)
