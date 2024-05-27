@@ -18,7 +18,6 @@
 
 import asyncio
 import logging
-from traceback import format_exc
 
 from telethon import Button, TelegramClient
 from telethon.errors.rpcerrorlist import FloodWaitError
@@ -42,7 +41,7 @@ LOGS.info(
     """
                         Auto Anime Bot
                 ©️ t.me/kAiF_00z (github.com/kaif-00z)
-                        v0.0.7 (original)
+                        v0.0.6 (original)
                              (2023-24)
                        [All Rigth Reserved]
 
@@ -110,5 +109,4 @@ class Reporter:
         except ConnectionError:
             await self.client.connect()
         except Exception as err:
-            LOGS.exception(format_exc())
             LOGS.error(str(err))
